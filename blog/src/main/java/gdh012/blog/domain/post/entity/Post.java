@@ -1,8 +1,8 @@
-package gdh012.blog.domain.Post.entity;
+package gdh012.blog.domain.post.entity;
 
-import gdh012.blog.domain.Category.entity.Category;
-import gdh012.blog.domain.Comment.entity.Comment;
-import gdh012.blog.domain.Tag.entity.Tag;
+import gdh012.blog.domain.category.entity.Category;
+import gdh012.blog.domain.comment.entity.Comment;
+import gdh012.blog.domain.tag.entity.Tag;
 import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.global.audit.BaseTimeEntity;
 import jakarta.persistence.*;
