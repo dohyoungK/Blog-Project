@@ -1,15 +1,12 @@
-package gdh012.blog.domain.Comment.entity;
+package gdh012.blog.domain.comment.entity;
 
-import gdh012.blog.domain.Post.entity.Post;
+import gdh012.blog.domain.post.entity.Post;
 import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.global.audit.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
