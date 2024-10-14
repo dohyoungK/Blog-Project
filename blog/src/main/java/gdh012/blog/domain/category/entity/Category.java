@@ -1,7 +1,6 @@
-package gdh012.blog.domain.Category.entity;
+package gdh012.blog.domain.category.entity;
 
-import gdh012.blog.domain.Comment.entity.Comment;
-import gdh012.blog.domain.Post.entity.Post;
+import gdh012.blog.domain.post.entity.Post;
 import gdh012.blog.domain.account.entity.Account;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
