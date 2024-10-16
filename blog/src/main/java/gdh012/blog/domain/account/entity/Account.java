@@ -5,10 +5,14 @@ import gdh012.blog.domain.comment.entity.Comment;
 import gdh012.blog.domain.post.entity.Post;
 import gdh012.blog.domain.tag.entity.Tag;
 import gdh012.blog.global.audit.BaseTimeEntity;
+import gdh012.blog.domain.account.constants.Role;
+import gdh012.blog.domain.account.constants.SocialType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,15 @@ public class Account extends BaseTimeEntity {
     @Column(name = "PROFILE_IMAGE_URL")
     private String profileImageUrl;
 
+    @Column(name = "REFRESH_TOKEN", length = 1000)
+    private String refreshToken;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Enumerated(EnumType.STRING)
+    private SocialType socialType; // KAKAO, NAVER, GOOGLE
+
     @OneToMany(mappedBy = "account")
     private List<Category> categories = new ArrayList<>();
 
@@ -45,4 +58,24 @@ public class Account extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "account")
     private List<Tag> tags = new ArrayList<>();
+
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(this.password);
+    }
+
+    public void updateRefreshToken(String updateRefreshToken) {
+        this.refreshToken = updateRefreshToken;
+    }
+
+    @Builder
+    public Account(Long accountId, String email, String nickname, String password, String profileImageUrl, String refreshToken, Role role, SocialType socialType) {
+        this.accountId = accountId;
+        this.email = email;
+        this.nickname = nickname;
+        this.password = password;
+        this.profileImageUrl = profileImageUrl;
+        this.refreshToken = refreshToken;
+        this.role = role;
+        this.socialType = socialType;
+    }
 }
