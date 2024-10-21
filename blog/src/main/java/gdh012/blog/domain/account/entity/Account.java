@@ -67,7 +67,7 @@ public class Account extends BaseTimeEntity {
         this.refreshToken = updateRefreshToken;
     }
 
-    @Builder
+    @Builder(toBuilder = true)
     public Account(Long accountId, String email, String nickname, String password, String profileImageUrl, String refreshToken, Role role, SocialType socialType) {
         this.accountId = accountId;
         this.email = email;
