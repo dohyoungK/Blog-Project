@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdh012.blog.domain.account.repository.AccountRepository;
 import gdh012.blog.global.jwt.filter.JwtAuthenticationProcessingFilter;
 import gdh012.blog.global.jwt.service.JwtService;
+import gdh012.blog.global.login.filter.CustomJsonUsernamePasswordAuthenticationFilter;
+import gdh012.blog.global.login.handler.LoginFailureHandler;
+import gdh012.blog.global.login.handler.LoginSuccessHandler;
+import gdh012.blog.global.login.service.LoginService;
 import gdh012.blog.global.oauth2.handler.OAuth2LoginFailureHandler;
 import gdh012.blog.global.oauth2.handler.OAuth2LoginSuccessHandler;
 import gdh012.blog.global.oauth2.service.CustomOAuth2UserService;
@@ -16,15 +20,19 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @RequiredArgsConstructor
 @EnableWebSecurity // WebSecurityConfiguration, SpringWebMvcImportSelector, OAuth2ImportSelector, HttpSecurityConfiguration 클래스 import 해주는 역할
 @Configuration
 public class SecurityConfig {
+    private final LoginService loginService;
     private final JwtService jwtService;
     private final AccountRepository accountRepository;
     private final ObjectMapper objectMapper;
@@ -36,21 +44,27 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/signup", "/", "login").permitAll()
-                        .anyRequest().authenticated())
-                .logout(logout -> logout
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true))
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2Login(oauth ->
-                        oauth.userInfoEndpoint(c -> c.userService(customOAuth2UserService))
-                                .successHandler(oAuth2LoginSuccessHandler)
-                                .failureHandler(oAuth2LoginFailureHandler)
-                );
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/"),
+                                new AntPathRequestMatcher("/index.html"),
+                                new AntPathRequestMatcher("/account/signUp"),
+                                new AntPathRequestMatcher("/h2/**")
+                        ).permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
+                        .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
+                )
+                .addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -64,48 +78,32 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
-//        provider.setUserDetailsService(loginService);
+        provider.setUserDetailsService(loginService);
         return new ProviderManager(provider);
     }
 
-//[PART 3]
-    /**
-     * 로그인 성공 시 호출되는 LoginSuccessJWTProviderHandler 빈 등록
-     */
-//    @Bean
-//    public LoginSuccessHandler loginSuccessHandler() {
-//        return new LoginSuccessHandler(jwtService, userRepository);
-//    }
+    @Bean
+    public LoginSuccessHandler loginSuccessHandler() {
+        return new LoginSuccessHandler(jwtService, accountRepository);
+    }
 
-    /**
-     * 로그인 실패 시 호출되는 LoginFailureHandler 빈 등록
-     */
-//    @Bean
-//    public LoginFailureHandler loginFailureHandler() {
-//        return new LoginFailureHandler();
-//    }
+    @Bean
+    public LoginFailureHandler loginFailureHandler() {
+        return new LoginFailureHandler();
+    }
 
-//[PART 4]
-    /**
-     * CustomJsonUsernamePasswordAuthenticationFilter 빈 등록
-     * 커스텀 필터를 사용하기 위해 만든 커스텀 필터를 Bean으로 등록
-     * setAuthenticationManager(authenticationManager())로 위에서 등록한 AuthenticationManager(ProviderManager) 설정
-     * 로그인 성공 시 호출할 handler, 실패 시 호출할 handler로 위에서 등록한 handler 설정
-     */
-//    @Bean
-//    public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() {
-//        CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordLoginFilter
-//                = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper);
-//        customJsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
-//        customJsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
-//        customJsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
-//        return customJsonUsernamePasswordLoginFilter;
-//    }
+    @Bean
+    public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() {
+        CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordLoginFilter
+                = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper);
+        customJsonUsernamePasswordLoginFilter.setAuthenticationManager(authenticationManager());
+        customJsonUsernamePasswordLoginFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
+        customJsonUsernamePasswordLoginFilter.setAuthenticationFailureHandler(loginFailureHandler());
+        return customJsonUsernamePasswordLoginFilter;
+    }
 
-    //[PART 5]
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
-        JwtAuthenticationProcessingFilter jwtAuthenticationFilter = new JwtAuthenticationProcessingFilter(jwtService, accountRepository);
-        return jwtAuthenticationFilter;
+        return new JwtAuthenticationProcessingFilter(jwtService, accountRepository);
     }
 }
