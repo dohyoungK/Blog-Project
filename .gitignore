@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 blog/src/main/resources/application-dev.yml
+소셜 로그인 키.txt
 
 ### STS ###
 .apt_generated
