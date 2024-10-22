@@ -1,8 +1,11 @@
 package gdh012.blog.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gdh012.blog.domain.account.constants.Role;
 import gdh012.blog.domain.account.repository.AccountRepository;
 import gdh012.blog.global.jwt.filter.JwtAuthenticationProcessingFilter;
+import gdh012.blog.global.jwt.handler.JwtAccessDeniedHandler;
+import gdh012.blog.global.jwt.handler.JwtAuthenticationEntryPoint;
 import gdh012.blog.global.jwt.service.JwtService;
 import gdh012.blog.global.login.filter.CustomJsonUsernamePasswordAuthenticationFilter;
 import gdh012.blog.global.login.handler.LoginFailureHandler;
@@ -46,17 +49,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+//                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)) // disable이지만 h2 사용끝날때까지 임시로 sameorigin
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // 인증되지 않은 사용자가 인증이 필요한 요청 엔드포인트로 접근하려 할 때 발생하는 예외 처리
+                        .accessDeniedHandler(new JwtAccessDeniedHandler())) // 인증 완료된 사용자가 권한이 없을 때 발생하는 예외 처리
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
+//                                new AntPathRequestMatcher("/**")
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/index.html"),
                                 new AntPathRequestMatcher("/account/signUp"),
                                 new AntPathRequestMatcher("/h2/**")
                         ).permitAll()
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/account/accessDeniedTest")
+                        ).hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler)
