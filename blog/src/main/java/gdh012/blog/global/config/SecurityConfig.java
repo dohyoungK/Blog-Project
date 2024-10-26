@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdh012.blog.domain.account.constants.Role;
 import gdh012.blog.domain.account.repository.AccountRepository;
 import gdh012.blog.global.jwt.filter.JwtAuthenticationProcessingFilter;
+import gdh012.blog.global.exception.filter.AuthExceptionFilter;
 import gdh012.blog.global.jwt.handler.JwtAccessDeniedHandler;
 import gdh012.blog.global.jwt.handler.JwtAuthenticationEntryPoint;
 import gdh012.blog.global.jwt.service.JwtService;
@@ -32,7 +33,7 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @RequiredArgsConstructor
-@EnableWebSecurity // WebSecurityConfiguration, SpringWebMvcImportSelector, OAuth2ImportSelector, HttpSecurityConfiguration 클래스 import 해주는 역할
+@EnableWebSecurity
 @Configuration
 public class SecurityConfig {
     private final LoginService loginService;
@@ -49,8 +50,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-//                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
-//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)) // disable이지만 h2 사용끝날때까지 임시로 sameorigin
+                .headers(httpSecurityHeadersConfigurer -> httpSecurityHeadersConfigurer
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)) // disable이지만 h2 사용끝날때까지 임시로 sameorigin
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer -> httpSecurityExceptionHandlingConfigurer
@@ -58,7 +59,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(new JwtAccessDeniedHandler())) // 인증 완료된 사용자가 권한이 없을 때 발생하는 예외 처리
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-//                                new AntPathRequestMatcher("/**")
+//                                new AntPathRequestMatcher("/**"),
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/index.html"),
                                 new AntPathRequestMatcher("/account/signUp"),
@@ -71,10 +72,12 @@ public class SecurityConfig {
                 .oauth2Login(oauth -> oauth
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
-                        .userInfoEndpoint(config -> config.userService(customOAuth2UserService))
+                        .userInfoEndpoint(config -> config.userService(customOAuth2UserService)) // OAuth2 로그인 성공 후 동작
                 )
                 .addFilterAfter(customJsonUsernamePasswordAuthenticationFilter(), LogoutFilter.class)
-                .addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationProcessingFilter(), CustomJsonUsernamePasswordAuthenticationFilter.class)
+                // jwt 인증 필터를 usernamepassword 인증 필터 앞에 놓기 (/login 으로 오는 요청은 jwt 인증 필터 제외하고 바로 넘기기)
+                .addFilterBefore(authExceptionFilter(), JwtAuthenticationProcessingFilter.class); // 필터 내 exception handling
 
         return http.build();
     }
@@ -115,5 +118,10 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
         return new JwtAuthenticationProcessingFilter(jwtService, accountRepository);
+    }
+
+    @Bean
+    public AuthExceptionFilter authExceptionFilter() {
+        return new AuthExceptionFilter();
     }
 }
