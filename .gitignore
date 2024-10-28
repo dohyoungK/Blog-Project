@@ -5,6 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 blog/src/main/resources/application-dev.yml
+blog/src/main/resources/application-test.yml
 소셜 로그인 키.txt
 
 ### STS ###
