@@ -1,0 +1,19 @@
+package gdh012.blog.global.auth.jwt.handler;
+
+import gdh012.blog.global.exception.code.ExceptionCode;
+import gdh012.blog.global.exception.response.ErrorResponder;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandler;
+
+import java.io.IOException;
+
+public class JwtAccessDeniedHandler implements AccessDeniedHandler {
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        ErrorResponder.sendErrorResponse(response, ExceptionCode.ACCOUNT_ACCESS_DENIED);
+    }
+}
