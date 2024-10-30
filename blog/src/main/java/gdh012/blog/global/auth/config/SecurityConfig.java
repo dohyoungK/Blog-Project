@@ -95,6 +95,7 @@ public class SecurityConfig {
         return new ProviderManager(provider);
     }
 
+    // LoginSuccessHandler, LoginFailureHandler는 config파일에서 직접 빈 등록을 했으므로 두 파일에 @component 사용 X
     @Bean
     public LoginSuccessHandler loginSuccessHandler() {
         return new LoginSuccessHandler(jwtService, accountRepository);
@@ -105,7 +106,6 @@ public class SecurityConfig {
         return new LoginFailureHandler();
     }
 
-    @Bean
     public CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordAuthenticationFilter() {
         CustomJsonUsernamePasswordAuthenticationFilter customJsonUsernamePasswordLoginFilter
                 = new CustomJsonUsernamePasswordAuthenticationFilter(objectMapper);
@@ -115,12 +115,10 @@ public class SecurityConfig {
         return customJsonUsernamePasswordLoginFilter;
     }
 
-    @Bean
     public JwtAuthenticationProcessingFilter jwtAuthenticationProcessingFilter() {
         return new JwtAuthenticationProcessingFilter(jwtService, accountRepository);
     }
 
-    @Bean
     public AuthExceptionFilter authExceptionFilter() {
         return new AuthExceptionFilter();
     }

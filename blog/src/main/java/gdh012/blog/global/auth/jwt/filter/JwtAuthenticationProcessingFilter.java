@@ -35,7 +35,7 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         if (request.getRequestURI().equals(NO_CHECK_URL) || request.getRequestURI().equals("/")
-                || request.getRequestURI().equals("/index.html") || request.getRequestURI().equals("/h2")
+                || request.getRequestURI().equals("/index.html") || request.getRequestURI().startsWith("/h2")
                 || request.getRequestURI().equals("/account/signUp")) {
             filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
             return;
@@ -53,7 +53,6 @@ public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
 
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
-        log.info("checkAccessTokenAndAuthentication() 호출");
         String accessToken = jwtService.extractAccessToken(request).orElse(null);
         jwtService.verifyToken(accessToken);
 
