@@ -63,7 +63,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessLogicException(BusinessLogicException e,
                                                                       HttpServletRequest httpServletRequest) {
         ErrorResponse response = ErrorResponse.of(e.getExceptionCode(), httpServletRequest);
-
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(e.getExceptionCode().getStatus()));
     }
 

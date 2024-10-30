@@ -26,7 +26,6 @@ public class ErrorResponse {
 
     public static ErrorResponse of(final ExceptionCode code, final BindingResult bindingResult,
                                    final HttpServletRequest httpServletRequest) {
-
         return ErrorResponse.builder()
                 .status(code.getStatus())
                 .message(code.getMessage())
