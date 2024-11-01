@@ -3,6 +3,8 @@ package gdh012.blog.global.exception.handler;
 import gdh012.blog.global.exception.code.BusinessLogicException;
 import gdh012.blog.global.exception.code.ExceptionCode;
 import gdh012.blog.global.exception.response.ErrorResponse;
+import gdh012.blog.global.response.MultiResponse;
+import gdh012.blog.global.response.SingleResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,56 +23,63 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class GlobalExceptionHandler {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     // @Valid로 @RequestBody에 매핑되는 dto를 검증할 때 발생
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e,
-                                                                               HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.INVALID_INPUT_VALUE, e.getBindingResult(), httpServletRequest);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<MultiResponse<ErrorResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e,
+                                                                                              HttpServletRequest httpServletRequest) {
+        MultiResponse<ErrorResponse> responses =
+                MultiResponse.fail(ErrorResponse.of(e.getBindingResult()), new BusinessLogicException(ExceptionCode.INVALID_INPUT_VALUE));
+        return new ResponseEntity<>(responses, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = ConstraintViolationException.class)
     // @PathVariable이나 @RequestParam에 매핑되는 경로, 쿼리 파라미터를 검증할 때 발생
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e,
-                                                                            HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.INVALID_INPUT_VALUE ,e.getConstraintViolations(), httpServletRequest);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<MultiResponse<ErrorResponse>> handleConstraintViolationException(ConstraintViolationException e,
+                                                                                           HttpServletRequest httpServletRequest) {
+        MultiResponse<ErrorResponse> responses =
+                MultiResponse.fail(ErrorResponse.of(e.getConstraintViolations()), new BusinessLogicException(ExceptionCode.INVALID_INPUT_VALUE));
+        return new ResponseEntity<>(responses, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     // @RequestParam에 매핑되는 쿼리 파라미터가 존재하지 않을 때 발생
-    public ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(MissingServletRequestParameterException e,
-                                                                                       HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.PARAMETER_NOT_FOUND, e, httpServletRequest);
+    public ResponseEntity<SingleResponse<ErrorResponse>> handleMissingServletRequestParameterException(MissingServletRequestParameterException e,
+                                                                                                       HttpServletRequest httpServletRequest) {
+        SingleResponse<ErrorResponse> response =
+                SingleResponse.fail(ErrorResponse.of(e), new BusinessLogicException(ExceptionCode.PARAMETER_NOT_FOUND));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
     // @PathVariable이나 @RequestParam에 매핑되는 경로, 쿼리 파라미터의 타입이 일치하지 않을 때 발생
-    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e,
-                                                                                   HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.INVALID_INPUT_TYPE, e, httpServletRequest);
+    public ResponseEntity<SingleResponse<ErrorResponse>> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e,
+                                                                                                   HttpServletRequest httpServletRequest) {
+        SingleResponse<ErrorResponse> response =
+                SingleResponse.fail(ErrorResponse.of(e), new BusinessLogicException(ExceptionCode.INVALID_INPUT_TYPE));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
     // request의 http method가 다를 때 발생
-    public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e,
-                                                                                   HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.METHOD_NOT_ALLOWED, e, httpServletRequest);
+    public ResponseEntity<SingleResponse<ErrorResponse>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e,
+                                                                                                      HttpServletRequest httpServletRequest) {
+        SingleResponse<ErrorResponse> response =
+                SingleResponse.fail(ErrorResponse.of(e), new BusinessLogicException(ExceptionCode.METHOD_NOT_ALLOWED));
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @ExceptionHandler(BusinessLogicException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessLogicException(BusinessLogicException e,
-                                                                      HttpServletRequest httpServletRequest) {
-        ErrorResponse response = ErrorResponse.of(e.getExceptionCode(), httpServletRequest);
+    public ResponseEntity<SingleResponse<ErrorResponse>> handleBusinessLogicException(BusinessLogicException e,
+                                                                                      HttpServletRequest httpServletRequest) {
+        SingleResponse<ErrorResponse> response =
+                SingleResponse.fail(ErrorResponse.of(e.getExceptionCode()), e);
         return new ResponseEntity<>(response, HttpStatusCode.valueOf(e.getExceptionCode().getStatus()));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<SingleResponse<ErrorResponse>> handleException(Exception e, HttpServletRequest httpServletRequest) {
         log.error("Internal Server Error: {}", e.getClass());
         log.error("{}", e.getMessage());
-        ErrorResponse response = ErrorResponse.of(ExceptionCode.INTERNAL_SERVER_ERROR);
+        SingleResponse<ErrorResponse> response =
+                SingleResponse.fail(ErrorResponse.of(ExceptionCode.INTERNAL_SERVER_ERROR), new BusinessLogicException(ExceptionCode.INTERNAL_SERVER_ERROR));
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
