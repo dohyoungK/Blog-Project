@@ -21,11 +21,11 @@ public class TestSecurityConfiguration {
 //                                new AntPathRequestMatcher("/**"),
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/index.html"),
-                                new AntPathRequestMatcher("/account/signUp"),
+                                new AntPathRequestMatcher("/accounts/signUp"),
                                 new AntPathRequestMatcher("/h2/**")
                         ).permitAll()
                         .requestMatchers(
-                                new AntPathRequestMatcher("/account/accessDeniedTest")
+                                new AntPathRequestMatcher("/accounts/accessDeniedTest")
                         ).hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated()
                 );
