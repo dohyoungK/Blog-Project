@@ -1,0 +1,26 @@
+= Connect API Document
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+
+== Account 관련 API
+
+=== 회원가입
+
+==== 요청
+
+include::{snippets}/account-controller-test/sign-up-test-success/http-request.adoc[]
+
+==== 요청 필드
+
+include::{snippets}/account-controller-test/sign-up-test-success/request-fields.adoc[]
+
+==== 응답
+
+include::{snippets}/account-controller-test/sign-up-test-success/http-response.adoc[]
+
+// ==== 응답 필드
+//
+// include::{snippets}/account-controller-test/sign-up-test-success/response-fields.adoc[]
