@@ -22,6 +22,7 @@ public enum ExceptionCode {
     ACCOUNT_ALREADY_EXISTS(409, "ACCOUNT-003", "Account Already Exists"),
     EMAIL_ALREADY_EXISTS(409, "ACCOUNT-004", "Email Already Exists"),
     NICKNAME_ALREADY_EXISTS(409, "ACCOUNT-005", "Nickname Already Exists"),
+    PASSWORD_NOT_VALID(400, "ACCOUNT-006", "Password Not Valid (영문, 숫자 포함 6글자 이상의 패스워드만 허용)"),
 
 
     BOARD_NOT_FOUND(404, "BOARD-001", "Board Not Found"),
