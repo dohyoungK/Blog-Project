@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gdh012.blog.domain.account.constants.Role;
 import gdh012.blog.domain.account.repository.AccountRepository;
 import gdh012.blog.global.auth.jwt.filter.JwtAuthenticationProcessingFilter;
-import gdh012.blog.global.exception.filter.AuthExceptionFilter;
 import gdh012.blog.global.auth.jwt.handler.JwtAccessDeniedHandler;
 import gdh012.blog.global.auth.jwt.handler.JwtAuthenticationEntryPoint;
 import gdh012.blog.global.auth.jwt.service.JwtService;
@@ -15,6 +14,7 @@ import gdh012.blog.global.auth.login.service.LoginService;
 import gdh012.blog.global.auth.oauth2.handler.OAuth2LoginFailureHandler;
 import gdh012.blog.global.auth.oauth2.handler.OAuth2LoginSuccessHandler;
 import gdh012.blog.global.auth.oauth2.service.CustomOAuth2UserService;
+import gdh012.blog.global.exception.filter.AuthExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,11 +62,14 @@ public class SecurityConfig {
 //                                new AntPathRequestMatcher("/**"),
                                 new AntPathRequestMatcher("/"),
                                 new AntPathRequestMatcher("/index.html"),
-                                new AntPathRequestMatcher("/account/signUp"),
-                                new AntPathRequestMatcher("/h2/**")
+                                new AntPathRequestMatcher("/accounts/signUp"),
+                                new AntPathRequestMatcher("/h2/**"),
+                                new AntPathRequestMatcher("/oauth2/**"),
+                                new AntPathRequestMatcher("/login/**"),
+                                new AntPathRequestMatcher("/**", "GET")
                         ).permitAll()
                         .requestMatchers(
-                                new AntPathRequestMatcher("/account/accessDeniedTest")
+                                new AntPathRequestMatcher("/accounts/accessDeniedTest")
                         ).hasRole(Role.ADMIN.name())
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
