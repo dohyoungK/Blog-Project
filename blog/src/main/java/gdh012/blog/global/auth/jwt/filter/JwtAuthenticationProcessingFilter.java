@@ -2,9 +2,9 @@ package gdh012.blog.global.auth.jwt.filter;
 
 import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.domain.account.repository.AccountRepository;
+import gdh012.blog.global.auth.jwt.service.JwtService;
 import gdh012.blog.global.exception.code.BusinessLogicException;
 import gdh012.blog.global.exception.code.ExceptionCode;
-import gdh012.blog.global.auth.jwt.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,23 +24,22 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationProcessingFilter extends OncePerRequestFilter {
-    private static final String NO_CHECK_URL = "/login"; // "/login"으로 들어오는 요청은 Filter 작동 X
-
     private final JwtService jwtService;
     private final AccountRepository accountRepository;
 
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String authorization = request.getHeader("Authorization");
+
+        // authorization이 null이거나 Bearer로 시작하지 않으면 이 필터를 실행하지 않는다.(shouldNotFilter)
+        return authorization == null || !authorization.startsWith("Bearer");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals(NO_CHECK_URL) || request.getRequestURI().equals("/")
-                || request.getRequestURI().equals("/index.html") || request.getRequestURI().startsWith("/h2")
-                || request.getRequestURI().equals("/account/signUp")) {
-            filterChain.doFilter(request, response); // "/login" 요청이 들어오면, 다음 필터 호출
-            return;
-        }
-
         String refreshToken = jwtService.extractRefreshToken(request)
                 .orElse(null);
 
