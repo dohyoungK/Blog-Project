@@ -5,7 +5,7 @@ import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.domain.account.repository.AccountRepository;
 import gdh012.blog.global.auth.oauth2.CustomOAuth2User;
 import gdh012.blog.global.auth.oauth2.OAuthAttributes;
-import gdh012.blog.global.auth.jwt.util.PasswordUtil;
+import gdh012.blog.global.utils.PasswordUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

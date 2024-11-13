@@ -1,4 +1,4 @@
-package gdh012.blog.global.auth.jwt.util;
+package gdh012.blog.global.utils;
 
 import java.util.Random;
 
