@@ -4,6 +4,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
+import org.springframework.restdocs.snippet.Attributes.Attribute;
 
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 
@@ -28,5 +29,9 @@ public class RestDocsConfiguration {
                                 .remove("X-Frame-Options"),
                         prettyPrint())
         );
+    }
+
+    public static Attribute field(String key, String value) {
+        return new Attribute(key, value);
     }
 }
