@@ -63,6 +63,11 @@ public class Account extends BaseTimeEntity {
         this.password = passwordEncoder.encode(this.password);
     }
 
+    public void updateAccount(String nickname, String password) {
+        if (!nickname.equals("")) this.nickname = nickname;
+        if (!password.equals("")) this.password = password;
+    }
+
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
     }
