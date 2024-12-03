@@ -1,4 +1,4 @@
-package gdh012.blog.domain.post.entity;
+package gdh012.blog.domain.board.entity;
 
 import gdh012.blog.domain.category.entity.Category;
 import gdh012.blog.domain.comment.entity.Comment;
@@ -7,6 +7,7 @@ import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.global.audit.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,11 +17,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Post extends BaseTimeEntity {
+public class Board extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "POST_ID")
-    private Long postId;
+    @Column(name = "BOARD_ID")
+    private Long boardId;
 
     @Column(name = "TITLE", nullable = false, length = 50)
     private String title;
@@ -29,10 +30,10 @@ public class Post extends BaseTimeEntity {
     @Column(name = "CONTENT")
     private String content;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "board")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "board")
     private List<Tag> tags = new ArrayList<>();
 
     @ManyToOne
@@ -42,4 +43,17 @@ public class Post extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "CATOGORY_ID")
     private Category category;
+
+    public void updateBoard(String title, String content) {
+        if (!title.equals("")) this.title = title;
+        if (!content.equals("")) this.content = content;
+    }
+
+    @Builder(toBuilder = true)
+    public Board(Long boardId, String title, String content, Account account) {
+        this.boardId = boardId;
+        this.title = title;
+        this.content = content;
+        this.account = account;
+    }
 }
