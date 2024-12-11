@@ -82,7 +82,7 @@ public class BoardService {
         boardRepository.delete(findBoard);
     }
 
-    private Board getMyBoard(Long boardId, Account findAccount) {
+    public Board getMyBoard(Long boardId, Account findAccount) {
         Board findBoard = boardRepository.findById(boardId).orElseThrow(() ->
                 new BusinessLogicException(ExceptionCode.BOARD_NOT_FOUND));
 

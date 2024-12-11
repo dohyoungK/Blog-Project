@@ -49,6 +49,10 @@ public class Board extends BaseTimeEntity {
         if (!content.equals("")) this.content = content;
     }
 
+    public void updateCategory(Category category) {
+        this.category = category;
+    }
+
     @Builder(toBuilder = true)
     public Board(Long boardId, String title, String content, Account account) {
         this.boardId = boardId;
