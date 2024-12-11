@@ -2,7 +2,7 @@ package gdh012.blog.domain.account.entity;
 
 import gdh012.blog.domain.category.entity.Category;
 import gdh012.blog.domain.comment.entity.Comment;
-import gdh012.blog.domain.post.entity.Post;
+import gdh012.blog.domain.board.entity.Board;
 import gdh012.blog.domain.tag.entity.Tag;
 import gdh012.blog.global.audit.BaseTimeEntity;
 import gdh012.blog.domain.account.constants.Role;
@@ -47,14 +47,14 @@ public class Account extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialType socialType; // KAKAO, NAVER, GOOGLE
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", orphanRemoval = true)
+    private List<Board> boards = new ArrayList<>();
+
+    @OneToMany(mappedBy = "account", orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
     @OneToMany(mappedBy = "account")
     private List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "account")
-    private List<Post> posts = new ArrayList<>();
 
     @OneToMany(mappedBy = "account")
     private List<Tag> tags = new ArrayList<>();
@@ -70,6 +70,13 @@ public class Account extends BaseTimeEntity {
 
     public void updateRefreshToken(String updateRefreshToken) {
         this.refreshToken = updateRefreshToken;
+    }
+
+    public void addBoard(Board board) {
+        this.boards.add(board);
+    }
+    public void addCategory(Category category) {
+        this.categories.add(category);
     }
 
     @Builder(toBuilder = true)
