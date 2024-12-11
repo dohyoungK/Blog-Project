@@ -1,9 +1,10 @@
 package gdh012.blog.domain.category.entity;
 
-import gdh012.blog.domain.post.entity.Post;
+import gdh012.blog.domain.board.entity.Board;
 import gdh012.blog.domain.account.entity.Account;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,5 +28,15 @@ public class Category {
     private Account account;
 
     @OneToMany(mappedBy = "category")
-    private List<Post> posts = new ArrayList<>();
+    private List<Board> boards = new ArrayList<>();
+
+    public void addBoard(Board board) {
+        this.boards.add(board);
+    }
+
+    @Builder(toBuilder = true)
+    public Category(String name, Account account) {
+        this.name = name;
+        this.account = account;
+    }
 }
