@@ -88,9 +88,7 @@ public class CategoryService {
                         .anyMatch(category -> category.getName().equals(updateDto.getName())))
             throw new BusinessLogicException(ExceptionCode.CATEGORY_ALREADY_EXISTS);
 
-        findCategory.toBuilder()
-                .name(updateDto.getName())
-                .build();
+        findCategory.updateCategory(updateDto.getName());
     }
 
     public void deleteCategory(Long categoryId) {

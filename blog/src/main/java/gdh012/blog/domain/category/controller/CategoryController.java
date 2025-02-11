@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/categories")
 @RestController
-
 public class CategoryController {
     private static final String CATEGORY_DEFAULT_URL = "/categories";
 
@@ -56,7 +55,7 @@ public class CategoryController {
         return ResponseEntity.ok(MultiResponse.success(responseDtos));
     }
 
-    @PatchMapping("/{category-id}")
+    @PatchMapping("/update/{category-id}")
     public ResponseEntity<HttpStatus> updateCategory(@Positive @PathVariable("category-id") Long categoryId,
                                                      @Valid @RequestBody CategoryDto.Update updateDto) {
         categoryService.updateCategory(categoryId, updateDto);

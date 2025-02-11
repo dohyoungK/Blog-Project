@@ -34,6 +34,10 @@ public class Category {
         this.boards.add(board);
     }
 
+    public void updateCategory(String name) {
+        this.name = name;
+    }
+
     @Builder(toBuilder = true)
     public Category(String name, Account account) {
         this.name = name;
