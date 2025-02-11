@@ -75,8 +75,13 @@ public class Account extends BaseTimeEntity {
     public void addBoard(Board board) {
         this.boards.add(board);
     }
+
     public void addCategory(Category category) {
         this.categories.add(category);
+    }
+
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
     }
 
     @Builder(toBuilder = true)

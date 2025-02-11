@@ -1,10 +1,11 @@
 package gdh012.blog.domain.comment.entity;
 
-import gdh012.blog.domain.post.entity.Post;
+import gdh012.blog.domain.board.entity.Board;
 import gdh012.blog.domain.account.entity.Account;
 import gdh012.blog.global.audit.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,17 @@ public class Comment extends BaseTimeEntity {
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "POST_ID")
-    private Post post;
+    @JoinColumn(name = "board_ID")
+    private Board board;
+
+    public void updateComment(String content) {
+        this.content = content;
+    }
+
+    @Builder(toBuilder = true)
+    public Comment(String content, Account account, Board board) {
+        this.content = content;
+        this.account = account;
+        this.board = board;
+    }
 }
