@@ -1,9 +1,10 @@
 package gdh012.blog.domain.tag.entity;
 
-import gdh012.blog.domain.post.entity.Post;
+import gdh012.blog.domain.board.entity.Board;
 import gdh012.blog.domain.account.entity.Account;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,14 +20,22 @@ public class Tag {
     @Column(name = "NAME", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "COUNT", nullable = false)
-    private Long count;
-
     @ManyToOne
     @JoinColumn(name = "ACCOUNT_ID")
     private Account account;
 
     @ManyToOne
-    @JoinColumn(name = "POST_ID")
-    private Post post;
+    @JoinColumn(name = "board_ID")
+    private Board board;
+
+    public void updateTag(String name) {
+        this.name = name;
+    }
+
+    @Builder(toBuilder = true)
+    public Tag(String name, Account account, Board board) {
+        this.name = name;
+        this.account = account;
+        this.board = board;
+    }
 }
