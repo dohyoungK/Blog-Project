@@ -53,10 +53,10 @@ public class Account extends BaseTimeEntity {
     @OneToMany(mappedBy = "account", orphanRemoval = true)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
     public void encodePassword(PasswordEncoder passwordEncoder) {
@@ -82,6 +82,10 @@ public class Account extends BaseTimeEntity {
 
     public void addComment(Comment comment) {
         this.comments.add(comment);
+    }
+
+    public void addTag(Tag tag) {
+        this.tags.add(tag);
     }
 
     @Builder(toBuilder = true)

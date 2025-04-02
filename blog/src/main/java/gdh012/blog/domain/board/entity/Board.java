@@ -30,10 +30,10 @@ public class Board extends BaseTimeEntity {
     @Column(name = "CONTENT")
     private String content;
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
     @ManyToOne
