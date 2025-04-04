@@ -53,6 +53,10 @@ public class Board extends BaseTimeEntity {
         this.category = category;
     }
 
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+    }
+
     @Builder(toBuilder = true)
     public Board(Long boardId, String title, String content, Account account) {
         this.boardId = boardId;

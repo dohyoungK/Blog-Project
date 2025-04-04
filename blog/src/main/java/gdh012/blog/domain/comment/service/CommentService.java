@@ -33,6 +33,7 @@ public class CommentService {
 
         comment = commentRepository.save(comment);
         findAccount.addComment(comment);
+        findBoard.addComment(comment);
 
         return CommentDto.Response.builder()
                 .commentId(comment.getCommentId())
